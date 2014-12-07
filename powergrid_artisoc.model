@@ -4,7 +4,7 @@
 //                                                                    /
 //====================================================================/
 
-Version = 3.0;
+Version = 3.5;
 
 
 
@@ -215,7 +215,7 @@ UNIVERSE {
     Dim time_second(0, 0) As Integer = (0);
     Dim pricing_mode(0, 0) As Integer = (0);
     Dim pricing_mode_text(0, 0) As String = ("");
-    Dim output(0, 0)[10] As Double = (10*0.0);
+    Dim output(0, 0)[13] As Double = ();
 }
 
 
@@ -228,17 +228,18 @@ Initial_Value {
     UNIVERSE.LINK_RANGE_AREA = 1(50.0);
     UNIVERSE.LINK_RANGE_PLAYER = 1(6.0);
     UNIVERSE.COUNT = 1(0);
-    UNIVERSE.HOME_NUM = 1(12);
-    UNIVERSE.SOLAR_NUM = 1(12);
-    UNIVERSE.AREA_NUM = 1(17);
+    UNIVERSE.HOME_NUM = 1(15);
+    UNIVERSE.SOLAR_NUM = 1(15);
+    UNIVERSE.AREA_NUM = 1(14);
     UNIVERSE.SPACE_WIDTH = 1(0.0);
     UNIVERSE.SPACE_HEIGHT = 1(0.0);
-    UNIVERSE.RANDOMSEED = 1(13.0);
+    UNIVERSE.RANDOMSEED = 1(18.0);
     UNIVERSE.NEGO_STEP_NUMBER = 1(100);
     UNIVERSE.GAMMA = 1(0.04);
     UNIVERSE.S = 1(0);
-    UNIVERSE.BETA_D = 1(1.12);
-    UNIVERSE.PRICING_MODE_TEXT = 1("交渉型：零時間");
+    UNIVERSE.BETA_D = 1(1.2);
+    UNIVERSE.PRICING_MODE_TEXT = 1("交渉型：予測有");
+    UNIVERSE.OUTPUT = 1(13*0.0);
 }
 
 
@@ -738,10 +739,10 @@ if Universe.nego_mode==true then
 		one.theta=one.theta_next
 	next one
 	
-	For i = 0 To 4 Step 1　　　　           
+	For i = 0 To 5 Step 1　　　　           
    		Universe.output(i)=Universe.powergrid.home(i).theta
 	Next i
-	For i = 0 To 4 Step 1　　　　           
+	For i = 0 To 5 Step 1　　　　           
    		Universe.output(i+5)=Universe.powergrid.solar(i).theta
 	Next i
 
@@ -1283,8 +1284,8 @@ Map_Output {
     Title = "powergrid";
     Disable = No;
     Background_Color = 255, 255, 255;
-    Position_x = 366;
-    Position_y = 21;
+    Position_x = 468;
+    Position_y = 275;
     Size_x = 779;
     Size_y = 629;
     Remarks = Yes;
@@ -1509,8 +1510,8 @@ Time_Graph {
     Remarks = Yes;
     Legend_Pos = Top;
     FastDraw = No;
-    Position_x = 1095;
-    Position_y = 2;
+    Position_x = 771;
+    Position_y = 70;
     Size_x = 576;
     Size_y = 535;
     Axis_Label = "", "";
@@ -1712,12 +1713,12 @@ Numeric_Output {
     Font_Style = 0;
     Font_Color = 0, 0, 0;
     Font_Background_Color = 255, 255, 255;
-    Position_x = 2;
-    Position_y = 210;
+    Position_x = 8;
+    Position_y = 431;
     Size_x = 305;
     Size_y = 249;
-    Numeric_Name = "time";
-    Title = "time";
+    Numeric_Name = "Time&Mode";
+    Title = "Time&Mode";
     Disable = No;
     Output_Group_Name = "";
     OUTPUT {
@@ -1784,8 +1785,8 @@ Time_Graph {
     Remarks = Yes;
     Legend_Pos = Top;
     FastDraw = No;
-    Position_x = 1098;
-    Position_y = 540;
+    Position_x = 499;
+    Position_y = 208;
     Size_x = 571;
     Size_y = 394;
     Axis_Label = "", "";
@@ -1820,13 +1821,13 @@ Line_Graph {
     Draw_Interval = 1;
     Graph_Name = "合計停滞量";
     Title = "合計停滞量";
-    Disable = No;
+    Disable = Yes;
     Background_Color = 255, 255, 255;
     Remarks = Yes;
     Legend_Pos = Top;
     FastDraw = Yes;
-    Position_x = 210;
-    Position_y = 301;
+    Position_x = 44;
+    Position_y = 11;
     Size_x = 1070;
     Size_y = 705;
     Axis_Label = "min", "e_total";
@@ -2096,25 +2097,15 @@ Time_Graph {
     Remarks = Yes;
     Legend_Pos = Top;
     FastDraw = No;
-    Position_x = 25;
-    Position_y = 61;
-    Size_x = 500;
-    Size_y = 300;
-    Axis_Label = "theta", "min";
+    Position_x = 329;
+    Position_y = 9;
+    Size_x = 565;
+    Size_y = 370;
+    Axis_Label = "step", "theta";
     Draw_By_JFree_Chart = Yes;
     Scale = 0, 0.0, 1000, 100.0, 100, 10.0;
     ScaleAuto = Yes, Yes;
     Output_Group_Name = "";
-    Output {
-        Graph_Element_Name = "0";
-        Line_Color = 255, 0, 0;
-        Line_Width = 1;
-        Marker_Id = 0;
-        Output_Expression = "Universe.output(0)";
-        Expression_Value_Display = No;
-        Effective_Fraction_Figures = 0;
-        Graph_Element_Color = (0, 204, 51);
-    }
     Output {
         Graph_Element_Name = "1";
         Line_Color = 0, 0, 255;
@@ -2205,6 +2196,53 @@ Time_Graph {
         Effective_Fraction_Figures = 0;
         Graph_Element_Color = (51, 255, 255);
     }
+    Output {
+        Graph_Element_Name = "10";
+        Line_Color = 0, 255, 255;
+        Line_Width = 2;
+        Marker_Id = 0;
+        Output_Expression = "Universe.output(10)";
+        Expression_Value_Display = No;
+        Effective_Fraction_Figures = 0;
+        Graph_Element_Color = (0, 51, 51);
+    }
+}
+
+
+//-------------------------------------------------------
+// Line Graph Output Definition Division
+//-------------------------------------------------------
+Line_Graph {
+    Font_Name = "Dialog";
+    Font_Char_Set = 81;
+    Font_Size = 12.0;
+    Font_Style = 0;
+    Font_Color = 0, 0, 0;
+    Font_Background_Color = 255, 255, 255;
+    Draw_Timing = Simulation_Step;
+    Draw_Interval = 1;
+    Graph_Name = "需給バランス";
+    Title = "需給バランス(選択した地域)";
+    Disable = No;
+    Background_Color = 255, 255, 255;
+    Remarks = Yes;
+    Legend_Pos = Top;
+    FastDraw = Yes;
+    Position_x = 44;
+    Position_y = 11;
+    Size_x = 1070;
+    Size_y = 705;
+    Axis_Label = "time[min]", "G(x)";
+    Output_Group_Name = "";
+    Output {
+        Graph_Element_Name = "e_total";
+        Line_Color = 255, 0, 0;
+        Line_Width = 2;
+        The_Number_Of_Datas = "GetArraySize(Universe.DATA_time_min)";
+        Variable_Id_X_Axis = Universe.DATA_time_min;
+        Variable_Id_Y_Axis = Universe.DATA_e_total;
+        Graph_Element_Color = (0, 0, 0);
+    }
 }
 
 
@@ -2212,33 +2250,7 @@ Time_Graph {
 // Control Panel Definition Division
 //-------------------------------------------------------
 Control_Panel {
-    Display_Area = 698, 255, 313, 470;
-    Panel_Item {
-        Item_Type = Edit_Box;
-        Item_Name = "リンクレンジ(地域)";
-        Display_Area = 0, 0, 0, 0;
-        Font_Name = "";
-        Font_Char_Set = 0;
-        Font_Size = 0.0;
-        Font_Style = 0;
-        Font_Color = 0, 0, 0;
-        Font_Background_Color = 0, 0, 0;
-        Var_Name = "Universe.link_range_area";
-        Text_Data = "50.0";
-    }
-    Panel_Item {
-        Item_Type = Edit_Box;
-        Item_Name = "リンクレンジ(需要供給家)";
-        Display_Area = 0, 0, 0, 0;
-        Font_Name = "";
-        Font_Char_Set = 0;
-        Font_Size = 0.0;
-        Font_Style = 0;
-        Font_Color = 0, 0, 0;
-        Font_Background_Color = 0, 0, 0;
-        Var_Name = "Universe.link_range_player";
-        Text_Data = "6.0";
-    }
+    Display_Area = 221, 269, 454, 275;
     Panel_Item {
         Item_Type = Edit_Box;
         Item_Name = "地域数";
@@ -2250,11 +2262,11 @@ Control_Panel {
         Font_Color = 0, 0, 0;
         Font_Background_Color = 0, 0, 0;
         Var_Name = "Universe.area_num";
-        Text_Data = "17";
+        Text_Data = "14";
     }
     Panel_Item {
         Item_Type = Edit_Box;
-        Item_Name = "太陽光発電家最大数";
+        Item_Name = "供給家数";
         Display_Area = 0, 0, 0, 0;
         Font_Name = "";
         Font_Char_Set = 0;
@@ -2263,11 +2275,11 @@ Control_Panel {
         Font_Color = 0, 0, 0;
         Font_Background_Color = 0, 0, 0;
         Var_Name = "Universe.solar_num";
-        Text_Data = "12";
+        Text_Data = "15";
     }
     Panel_Item {
         Item_Type = Edit_Box;
-        Item_Name = "家庭最大数";
+        Item_Name = "需要家数";
         Display_Area = 0, 0, 0, 0;
         Font_Name = "";
         Font_Char_Set = 0;
@@ -2276,7 +2288,7 @@ Control_Panel {
         Font_Color = 0, 0, 0;
         Font_Background_Color = 0, 0, 0;
         Var_Name = "Universe.home_num";
-        Text_Data = "12";
+        Text_Data = "15";
     }
     Panel_Item {
         Item_Type = Edit_Box;
@@ -2293,7 +2305,7 @@ Control_Panel {
     }
     Panel_Item {
         Item_Type = Edit_Box;
-        Item_Name = "β";
+        Item_Name = "β(SV方式)";
         Display_Area = 0, 0, 0, 0;
         Font_Name = "";
         Font_Char_Set = 0;
@@ -2306,7 +2318,7 @@ Control_Panel {
     }
     Panel_Item {
         Item_Type = Edit_Box;
-        Item_Name = "c_i";
+        Item_Name = "c";
         Display_Area = 0, 0, 0, 0;
         Font_Name = "";
         Font_Char_Set = 0;
@@ -2315,7 +2327,7 @@ Control_Panel {
         Font_Color = 0, 0, 0;
         Font_Background_Color = 0, 0, 0;
         Var_Name = "Universe.beta_d";
-        Text_Data = "1.12";
+        Text_Data = "1.2";
     }
     Panel_Item {
         Item_Type = Edit_Box;
@@ -2341,7 +2353,33 @@ Control_Panel {
         Font_Color = 0, 0, 0;
         Font_Background_Color = 0, 0, 0;
         Var_Name = "Universe.RandomSeed";
-        Text_Data = "13.0";
+        Text_Data = "18.0";
+    }
+    Panel_Item {
+        Item_Type = Edit_Box;
+        Item_Name = "リンクレンジ(地域)";
+        Display_Area = 0, 0, 0, 0;
+        Font_Name = "";
+        Font_Char_Set = 0;
+        Font_Size = 0.0;
+        Font_Style = 0;
+        Font_Color = 0, 0, 0;
+        Font_Background_Color = 0, 0, 0;
+        Var_Name = "Universe.link_range_area";
+        Text_Data = "50.0";
+    }
+    Panel_Item {
+        Item_Type = Edit_Box;
+        Item_Name = "リンクレンジ(需要供給家)";
+        Display_Area = 0, 0, 0, 0;
+        Font_Name = "";
+        Font_Char_Set = 0;
+        Font_Size = 0.0;
+        Font_Style = 0;
+        Font_Color = 0, 0, 0;
+        Font_Background_Color = 0, 0, 0;
+        Var_Name = "Universe.link_range_player";
+        Text_Data = "6.0";
     }
     Panel_Item {
         Item_Type = Drop_Down_List;
@@ -2377,12 +2415,12 @@ Others_Data {
     Debug_Position_y = 75;
     Debug_Size_x = 400;
     Debug_Size_y = 200;
-    Console_Position_x = 41;
-    Console_Position_y = 402;
+    Console_Position_x = 504;
+    Console_Position_y = 65;
     Console_Size_x = 318;
     Console_Size_y = 448;
-    Componen_Tree_Position_x = 401;
-    Componen_Tree_Position_y = 52;
+    Componen_Tree_Position_x = 207;
+    Componen_Tree_Position_y = 23;
     Componen_Tree_Size_x = 250;
     Componen_Tree_Size_y = 400;
     Console_Background_Color = 16777215;
@@ -2411,8 +2449,8 @@ Network_Info {
 // Window Location Definition Division
 //-------------------------------------------------------
 Window_Rectangle {
-    Window_Name = Main_Window, 0, 0, 800, 700;
-    Window_Name = Output_Setting_Window, 280, 232, 480, 290;
+    Window_Name = Main_Window, 492, 53, 1205, 844;
+    Window_Name = Output_Setting_Window, 362, 277, 480, 290;
     Window_Name = Artisoc_Help_Window, 81, 204, 1190, 667;
 }
 
