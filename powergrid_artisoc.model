@@ -183,6 +183,7 @@ UNIVERSE {
             Dim trans_terminals(0, 0) As AgtSet = ();
             Dim nego_convergence(0, 0) As Double = (0.0);
             Dim init_ave(0, 0) As Double = (0.0);
+            Dim G_DATA(0, 0)[14400] As Double = ();
         }
     }
     Dim alpha(0, 0) As Double = (0.0);
@@ -216,6 +217,8 @@ UNIVERSE {
     Dim pricing_mode(0, 0) As Integer = (0);
     Dim pricing_mode_text(0, 0) As String = ("");
     Dim output(0, 0)[13] As Double = ();
+    Dim DATA_G_displayed(0, 0)[14400] As Double = ();
+    Dim clicked_area(0, 0) As Integer = ();
 }
 
 
@@ -238,8 +241,9 @@ Initial_Value {
     UNIVERSE.GAMMA = 1(0.04);
     UNIVERSE.S = 1(0);
     UNIVERSE.BETA_D = 1(1.2);
-    UNIVERSE.PRICING_MODE_TEXT = 1("交渉型：予測有");
+    UNIVERSE.PRICING_MODE_TEXT = 1("交渉型：零時間");
     UNIVERSE.OUTPUT = 1(13*0.0);
+    UNIVERSE.CLICKED_AREA = 1(0);
 }
 
 
@@ -560,23 +564,11 @@ if IsMouseClickedOnMap() then
 		GetClickedMapPosition(clicked_x, clicked_y, clicked_map)
 		
 		ClearAgtSet(area_set)
-		MakeAgtSet(area_set, Universe.powergrid.home)
+		MakeAgtSet(area_set, Universe.powergrid.area)
 		
 		For Each one in area_set
-			If MeasureDistance(one.X, one.Y, clicked_x, clicked_y, Universe.powergrid) < 5 Then
-				PrintLn(" ")
-				PrintLn("クリックされたエージェントの情報(時刻：" & Universe.time_day & "日" & Universe.time_hour & "時" & Universe.time_min & "分)")
-				PrintLn("ID：" & one.ID)
-				PrintLn("地域ID：" & one.area)
-				PrintLn("x_i：" & one.x_i)
-				PrintLn("a_i：" & one.a_i)
-				PrintLn("b_i：" & one.b_i)
-				//PrintLn("停滞量：" & one.G_i)
-				PrintLn("推定価格：" & one.lamda)
-				PrintLn("SV方式価格：" & one.sv_lamda)
-				PrintLn("需要供給量予測値：" & one.a_i*one.lamda+one.b_i)
-				PrintLn("theta：" & one.theta)
-					//PrintLn("価格差：" & one.nego_convergence)
+			If MeasureDistance(one.X, one.Y, clicked_x, clicked_y, Universe.powergrid) < 15 Then
+				Universe.clicked_area=one.ID
 			End If
 		Next one
 		
@@ -749,6 +741,9 @@ if Universe.nego_mode==true then
 end if
 
 
+For i=0 to Universe.count
+	Universe.DATA_G_displayed(i) = Universe.powergrid.area(Universe.clicked_area).G_DATA(i)
+next i
 
 Universe.step_total=Universe.step_total+1
 
@@ -1206,6 +1201,7 @@ if Universe.nego_mode==false then
 	end if
 
 	My.p=My.lamda
+	My.G_DATA(Universe.count)=My.G_i
 end if
 
 
@@ -1284,8 +1280,8 @@ Map_Output {
     Title = "powergrid";
     Disable = No;
     Background_Color = 255, 255, 255;
-    Position_x = 468;
-    Position_y = 275;
+    Position_x = 25;
+    Position_y = 20;
     Size_x = 779;
     Size_y = 629;
     Remarks = Yes;
@@ -2097,8 +2093,8 @@ Time_Graph {
     Remarks = Yes;
     Legend_Pos = Top;
     FastDraw = No;
-    Position_x = 329;
-    Position_y = 9;
+    Position_x = 344;
+    Position_y = 6;
     Size_x = 565;
     Size_y = 370;
     Axis_Label = "step", "theta";
@@ -2228,20 +2224,47 @@ Line_Graph {
     Remarks = Yes;
     Legend_Pos = Top;
     FastDraw = Yes;
-    Position_x = 44;
-    Position_y = 11;
-    Size_x = 1070;
+    Position_x = 779;
+    Position_y = 67;
+    Size_x = 903;
     Size_y = 705;
     Axis_Label = "time[min]", "G(x)";
     Output_Group_Name = "";
     Output {
-        Graph_Element_Name = "e_total";
+        Graph_Element_Name = "G(x)";
         Line_Color = 255, 0, 0;
-        Line_Width = 2;
+        Line_Width = 3;
         The_Number_Of_Datas = "GetArraySize(Universe.DATA_time_min)";
         Variable_Id_X_Axis = Universe.DATA_time_min;
-        Variable_Id_Y_Axis = Universe.DATA_e_total;
+        Variable_Id_Y_Axis = Universe.DATA_G_displayed;
         Graph_Element_Color = (0, 0, 0);
+    }
+}
+
+
+//-------------------------------------------------------
+// Numeric Data Window Output Definition Division
+//-------------------------------------------------------
+Numeric_Output {
+    Font_Name = "Dialog";
+    Font_Char_Set = 81;
+    Font_Size = 12.0;
+    Font_Style = 0;
+    Font_Color = 0, 0, 0;
+    Font_Background_Color = 255, 255, 255;
+    Position_x = 1338;
+    Position_y = 112;
+    Size_x = 197;
+    Size_y = 134;
+    Numeric_Name = "選択された地域";
+    Title = "選択された地域";
+    Disable = No;
+    Output_Group_Name = "";
+    OUTPUT {
+        Output_Element_Name = "地域ID：";
+        Figures = 0;
+        Format_Id = 0;
+        Output_Expression = "Universe.clicked_area";
     }
 }
 
@@ -2250,7 +2273,7 @@ Line_Graph {
 // Control Panel Definition Division
 //-------------------------------------------------------
 Control_Panel {
-    Display_Area = 221, 269, 454, 275;
+    Display_Area = 56, 641, 454, 275;
     Panel_Item {
         Item_Type = Edit_Box;
         Item_Name = "地域数";
@@ -2415,8 +2438,8 @@ Others_Data {
     Debug_Position_y = 75;
     Debug_Size_x = 400;
     Debug_Size_y = 200;
-    Console_Position_x = 504;
-    Console_Position_y = 65;
+    Console_Position_x = 156;
+    Console_Position_y = 43;
     Console_Size_x = 318;
     Console_Size_y = 448;
     Componen_Tree_Position_x = 207;
@@ -2449,9 +2472,9 @@ Network_Info {
 // Window Location Definition Division
 //-------------------------------------------------------
 Window_Rectangle {
-    Window_Name = Main_Window, 492, 53, 1205, 844;
-    Window_Name = Output_Setting_Window, 362, 277, 480, 290;
-    Window_Name = Artisoc_Help_Window, 81, 204, 1190, 667;
+    Window_Name = Main_Window, 79, 53, 1618, 990;
+    Window_Name = Output_Setting_Window, 569, 350, 480, 290;
+    Window_Name = Artisoc_Help_Window, 582, 40, 868, 667;
 }
 
 
