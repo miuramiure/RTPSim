@@ -183,7 +183,7 @@ UNIVERSE {
             Dim trans_terminals(0, 0) As AgtSet = ();
             Dim nego_convergence(0, 0) As Double = (0.0);
             Dim init_ave(0, 0) As Double = (0.0);
-            Dim G_DATA(0, 0)[14400] As Double = ();
+            Dim G_DATA(0, 0)[14400] As Double = (14400*0.0);
         }
     }
     Dim alpha(0, 0) As Double = (0.0);
@@ -216,8 +216,8 @@ UNIVERSE {
     Dim time_second(0, 0) As Integer = (0);
     Dim pricing_mode(0, 0) As Integer = (0);
     Dim pricing_mode_text(0, 0) As String = ("");
-    Dim output(0, 0)[13] As Double = ();
-    Dim DATA_G_displayed(0, 0)[14400] As Double = ();
+    Dim output(0, 0)[13] As Double = (13*0.0);
+    Dim DATA_G_displayed(0, 0)[14400] As Double = (14400*0.0);
     Dim clicked_area(0, 0) As Integer = ();
 }
 
@@ -243,7 +243,7 @@ Initial_Value {
     UNIVERSE.BETA_D = 1(1.2);
     UNIVERSE.PRICING_MODE_TEXT = 1("交渉型：零時間");
     UNIVERSE.OUTPUT = 1(13*0.0);
-    UNIVERSE.CLICKED_AREA = 1(0);
+    UNIVERSE.CLICKED_AREA = 1(1);
 }
 
 
@@ -251,7 +251,101 @@ Initial_Value {
 // Agent Rule
 //-------------------------------------------------------
 #begin_rule UNIVERSE
-include "basic_func.inc" //基礎的な独自関数をインポート
+Function distance_agt(agt1 as Agt, agt2 as Agt) as Double{
+//２つのエージェントの間の距離を取得する関数
+
+//空間を取得する（agt1の空間を取得して距離計算に使う）
+Dim sp as Space
+Dim agt_type as AgtType
+agt_type=SpecifyAgtType(agt1)
+sp=GetRideSpace(agt_type)
+
+//距離を計算する
+dim distance as Double
+distance=MeasureDistance(agt1.X, agt1.Y, agt2.X, agt2.Y, sp)
+
+return(distance)
+
+}
+
+//----------------------------------------------------------
+Function direction_agt(agt1 as Agt, agt2 as Agt) as Double{
+//agt1から見たagt2の角度を取得する関数[degree]
+
+//空間を取得する（agt1の空間を取得して角度計算に使う）
+Dim sp as Space
+Dim agt_type as AgtType
+agt_type=SpecifyAgtType(agt1)
+sp=GetRideSpace(agt_type)
+
+//角度を計算する
+dim direction as Double
+direction=GetDirection(agt1.X, agt1.Y, agt2.X, agt2.Y, sp)
+
+return(direction)
+
+}
+
+//----------------------------------------------------------
+Function AgtTypeComp(agt1 as Agt, agt2 as Agt) as Integer{
+//agt1とagt2のタイプが一致するとき1，一致しないとき0を出力する
+
+Dim agt_type1 as String
+Dim agt_type2 as String
+Dim answer as Integer
+
+//それぞれのエージェントタイプを文字列として取得する
+agt_type1=CStr(SpecifyAgtType(agt1))
+agt_type2=CStr(SpecifyAgtType(agt2))
+
+//文字列が一致していれば1，一致していなければ0を出力する
+If StrComp(agt_type1,agt_type2)==0 then
+	answer=1
+Else
+
+	answer=0
+
+End if
+
+return(answer)
+
+}
+
+//----------------------------------------------------------
+Function AgtTypeComp2(agt1 as Agt, agt_type_str as String) as Integer{
+//agt1のタイプ名がagt_type_strと一致するとき1，一致しないとき0を出力する
+//agt_type_strは"Universe.空間名.種別名"という形で記述する
+
+Dim agt_type as String
+Dim answer as Integer
+
+//それぞれのエージェントタイプを文字列として取得する
+agt_type=CStr(SpecifyAgtType(agt1))
+
+//文字列が一致していれば1，一致していなければ0を出力する
+If StrComp(agt_type,agt_type_str)==0 then
+	answer=1
+Else
+
+	answer=0
+
+End if
+
+return(answer)
+
+}
+
+//----------------------------------------------------------
+Function eRnd(e as Double) as Double{
+//-e～+eの範囲の値をランダム(一様分布)で返す
+
+Dim output as Double
+
+output = 2*e*(Rnd()-0.5) 
+
+return(output)
+
+}
 
 Univ_Init{
 
@@ -1294,7 +1388,7 @@ Map_Output {
     Font_Background_Color = 255, 255, 255;
     FastDraw = Yes;
     Draw_Timing = Simulation_Step;
-    Draw_Interval = 50;
+    Draw_Interval = 10;
     Axis_Label = "", "";
     Draw_Range = 0, 0, 150, 150;
     Ruled_Line = No;
@@ -2224,8 +2318,8 @@ Line_Graph {
     Remarks = Yes;
     Legend_Pos = Top;
     FastDraw = Yes;
-    Position_x = 779;
-    Position_y = 67;
+    Position_x = 550;
+    Position_y = 11;
     Size_x = 903;
     Size_y = 705;
     Axis_Label = "time[min]", "G(x)";
@@ -2252,7 +2346,7 @@ Numeric_Output {
     Font_Style = 0;
     Font_Color = 0, 0, 0;
     Font_Background_Color = 255, 255, 255;
-    Position_x = 1338;
+    Position_x = 1433;
     Position_y = 112;
     Size_x = 197;
     Size_y = 134;
@@ -2273,7 +2367,7 @@ Numeric_Output {
 // Control Panel Definition Division
 //-------------------------------------------------------
 Control_Panel {
-    Display_Area = 56, 641, 454, 275;
+    Display_Area = 56, 625, 454, 275;
     Panel_Item {
         Item_Type = Edit_Box;
         Item_Name = "地域数";
@@ -2472,8 +2566,8 @@ Network_Info {
 // Window Location Definition Division
 //-------------------------------------------------------
 Window_Rectangle {
-    Window_Name = Main_Window, 79, 53, 1618, 990;
-    Window_Name = Output_Setting_Window, 569, 350, 480, 290;
+    Window_Name = Main_Window, 0, 0, 1606, 831;
+    Window_Name = Output_Setting_Window, 331, 205, 480, 290;
     Window_Name = Artisoc_Help_Window, 582, 40, 868, 667;
 }
 
