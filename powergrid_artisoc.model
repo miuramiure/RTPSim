@@ -2390,7 +2390,7 @@ Numeric_Output {
 // Control Panel Definition Division
 //-------------------------------------------------------
 Control_Panel {
-    Display_Area = 29, 210, 454, 275;
+    Display_Area = 180, 143, 454, 275;
     Panel_Item {
         Item_Type = Edit_Box;
         Item_Name = "ínàÊêî";
@@ -2576,7 +2576,7 @@ Network_Info {
 // Window Location Definition Division
 //-------------------------------------------------------
 Window_Rectangle {
-    Window_Name = Main_Window, 0, 0, 1604, 870;
+    Window_Name = Main_Window, 143, 0, 1102, 870;
     Window_Name = Output_Setting_Window, 563, 270, 480, 290;
     Window_Name = Artisoc_Help_Window, 607, 466, 868, 667;
 }
