@@ -218,7 +218,7 @@ UNIVERSE {
     Dim pricing_mode_text(0, 0) As String = ("");
     Dim output(0, 0)[13] As Double = (13*0.0);
     Dim DATA_G_displayed(0, 0)[14400] As Double = (14400*0.0);
-    Dim clicked_area(0, 0) As Integer = ();
+    Dim clicked_area(0, 0) As Integer = (0);
 }
 
 
@@ -337,7 +337,7 @@ return(answer)
 
 //----------------------------------------------------------
 Function eRnd(e as Double) as Double{
-//-e～+eの範囲の値をランダム(一様分布)で返す
+//-e?+eの範囲の値をランダム(一様分布)で返す
 
 Dim output as Double
 
@@ -378,11 +378,33 @@ Universe.e_total=temp_array
 Universe.space_width=GetWidthSpace(Universe.powergrid) //空間の幅(x)
 Universe.space_height=GetHeightSpace(Universe.powergrid) //空間の高さ(y)
 
-//モード表示
-if Universe.pricing_mode_text=="スーパーバイザ方式" then
-	PrintLn("価格調整：スーパーバイザ方式")
-	Universe.pricing_mode=0
+//エージェント数の設定値を整数にキャストする
+Universe.area_num=CInt(Universe.area_num)
+Universe.home_num=CInt(Universe.home_num)
+Universe.solar_num=CInt(Universe.solar_num)
+
+//------------------------------------------------------
+//少ない地域数・エージェント数設定時の処理
+//------------------------------------------------------
+if Universe.area_num <= 0 then
+	PrintLn("地域数が不適当です(1以上の整数を入力して下さい)")
+	ExitSimulation()
+elseif Universe.area_num == 1 then
+	Universe.clicked_area = 0
 end if
+
+if (Universe.area_num*Universe.home_num <= 4) Or (Universe.area_num*Universe.solar_num <= 4)  then
+	PrintLn("エージェント数が少なすぎます．")
+	PrintLn("全体の供給家数と需要家数がそれぞれ5以上となるように設定して下さい")
+        ExitSimulation()
+end if
+
+
+//モード表示
+//if Universe.pricing_mode_text=="スーパーバイザ方式" then
+//	PrintLn("価格調整：スーパーバイザ方式")
+//	Universe.pricing_mode=0
+//end if
 
 if Universe.pricing_mode_text=="交渉型：零時間" then
 	PrintLn("価格調整：交渉型（実際のx_(s+1)の値を使って交渉開始）")
@@ -398,6 +420,7 @@ if Universe.pricing_mode_text=="交渉型：予測有" then
 	PrintLn("価格調整：逐次線形回帰法を用いてx_(s+1)を予測")
 	Universe.pricing_mode=3
 end if
+
 
 //-------------------------------------------------------
 //エージェントの生成と配置
@@ -1374,8 +1397,8 @@ Map_Output {
     Title = "powergrid";
     Disable = No;
     Background_Color = 255, 255, 255;
-    Position_x = 25;
-    Position_y = 20;
+    Position_x = 683;
+    Position_y = 35;
     Size_x = 779;
     Size_y = 629;
     Remarks = Yes;
@@ -1595,7 +1618,7 @@ Time_Graph {
     Draw_Interval = 1;
     Graph_Name = "価格(スーパーバイザ方式)";
     Title = "価格";
-    Disable = No;
+    Disable = Yes;
     Background_Color = 255, 255, 255;
     Remarks = Yes;
     Legend_Pos = Top;
@@ -1875,8 +1898,8 @@ Time_Graph {
     Remarks = Yes;
     Legend_Pos = Top;
     FastDraw = No;
-    Position_x = 499;
-    Position_y = 208;
+    Position_x = 1067;
+    Position_y = 357;
     Size_x = 571;
     Size_y = 394;
     Axis_Label = "", "";
@@ -2318,8 +2341,8 @@ Line_Graph {
     Remarks = Yes;
     Legend_Pos = Top;
     FastDraw = Yes;
-    Position_x = 550;
-    Position_y = 11;
+    Position_x = 106;
+    Position_y = 43;
     Size_x = 903;
     Size_y = 705;
     Axis_Label = "time[min]", "G(x)";
@@ -2367,7 +2390,7 @@ Numeric_Output {
 // Control Panel Definition Division
 //-------------------------------------------------------
 Control_Panel {
-    Display_Area = 56, 625, 454, 275;
+    Display_Area = 29, 210, 454, 275;
     Panel_Item {
         Item_Type = Edit_Box;
         Item_Name = "地域数";
@@ -2419,19 +2442,6 @@ Control_Panel {
         Font_Background_Color = 0, 0, 0;
         Var_Name = "Universe.alpha";
         Text_Data = "0.06";
-    }
-    Panel_Item {
-        Item_Type = Edit_Box;
-        Item_Name = "β(SV方式)";
-        Display_Area = 0, 0, 0, 0;
-        Font_Name = "";
-        Font_Char_Set = 0;
-        Font_Size = 0.0;
-        Font_Style = 0;
-        Font_Color = 0, 0, 0;
-        Font_Background_Color = 0, 0, 0;
-        Var_Name = "Universe.beta";
-        Text_Data = "0.04";
     }
     Panel_Item {
         Item_Type = Edit_Box;
@@ -2509,7 +2519,7 @@ Control_Panel {
         Font_Color = 0, 0, 0;
         Font_Background_Color = 0, 0, 0;
         Var_Name = "Universe.pricing_mode_text";
-        Drop_Down_List_Value = "スーパーバイザ方式","スーパーバイザ方式","交渉型：零時間","交渉型：零時間","交渉型：予測無","交渉型：予測無","交渉型：予測有","交渉型：予測有";
+        Drop_Down_List_Value = "交渉型：零時間","交渉型：零時間","交渉型：予測無","交渉型：予測無","交渉型：予測有","交渉型：予測有";
     }
 }
 
@@ -2532,8 +2542,8 @@ Others_Data {
     Debug_Position_y = 75;
     Debug_Size_x = 400;
     Debug_Size_y = 200;
-    Console_Position_x = 156;
-    Console_Position_y = 43;
+    Console_Position_x = 193;
+    Console_Position_y = 240;
     Console_Size_x = 318;
     Console_Size_y = 448;
     Componen_Tree_Position_x = 207;
@@ -2566,9 +2576,9 @@ Network_Info {
 // Window Location Definition Division
 //-------------------------------------------------------
 Window_Rectangle {
-    Window_Name = Main_Window, 0, 0, 1606, 831;
-    Window_Name = Output_Setting_Window, 331, 205, 480, 290;
-    Window_Name = Artisoc_Help_Window, 582, 40, 868, 667;
+    Window_Name = Main_Window, 0, 0, 1604, 870;
+    Window_Name = Output_Setting_Window, 563, 270, 480, 290;
+    Window_Name = Artisoc_Help_Window, 607, 466, 868, 667;
 }
 
 
